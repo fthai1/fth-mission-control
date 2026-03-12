@@ -44,6 +44,7 @@ export async function GET() {
         mode: getMissionControlMode(),
         publicUrl: getMissionControlPublicUrl(),
         storage: isSupabaseConfigured() ? "supabase-configured" : "local-fallback",
+        auth: "supabase-magic-link",
         uptimeSeconds: Math.round(process.uptime()),
       },
       timestamp: new Date().toISOString(),

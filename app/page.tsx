@@ -98,6 +98,14 @@ export default function Home() {
         </nav>
 
         <SidebarStatus />
+        <form action="/auth/logout" method="post" style={{ padding: 16, borderTop: "1px solid var(--border)" }}>
+          <button
+            type="submit"
+            style={{ width: "100%", background: "transparent", color: "var(--text-muted)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px", fontWeight: 700, cursor: "pointer" }}
+          >
+            Sign out
+          </button>
+        </form>
       </aside>
 
       {/* Main */}

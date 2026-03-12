@@ -60,6 +60,28 @@ SUPABASE_SERVICE_ROLE_KEY=
    - `supabase/schema.sql`
 4. Redeploy on Vercel
 
+## Private access / auth
+Mission Control is now intended to run behind **Supabase Auth**.
+
+### Required env
+```env
+MISSION_CONTROL_ALLOWED_EMAILS=erik@fasttrackbuys.com
+```
+
+### Auth flow
+- `/login` is the public entrypoint
+- users sign in via Supabase magic link
+- middleware blocks anonymous access to the app and API routes
+- only emails in `MISSION_CONTROL_ALLOWED_EMAILS` are allowed through
+
+### Supabase dashboard setup
+In Supabase Auth settings:
+- enable **Email** provider
+- enable **magic link / OTP email login**
+- add your site URL / redirect URL:
+  - `https://mc.fasttrackbuys.com/auth/callback`
+  - `http://localhost:3000/auth/callback` (for local dev)
+
 ### Current Supabase-backed surfaces
 - Agent inbox channel metadata + message transcript persistence
 - Task board task feed
