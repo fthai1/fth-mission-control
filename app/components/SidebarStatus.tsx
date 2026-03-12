@@ -15,6 +15,7 @@ type SystemHealth = {
     app: string;
     mode: string;
     publicUrl?: string;
+    storage?: string;
     uptimeSeconds: number;
   };
   timestamp?: string;
@@ -24,7 +25,7 @@ const emptyHealth: SystemHealth = {
   ghl: { status: "unknown", latency: 0 },
   webhook: { status: "unknown", latency: 0 },
   gateway: { status: "unknown", latency: 0 },
-  missionControl: { app: "unknown", mode: "unknown", publicUrl: "", uptimeSeconds: 0 },
+  missionControl: { app: "unknown", mode: "unknown", publicUrl: "", storage: "unknown", uptimeSeconds: 0 },
 };
 
 function colorFor(status: string) {
@@ -87,7 +88,7 @@ export default function SidebarStatus() {
         <HealthRow
           label="Mission Control"
           status={health.missionControl?.app || "unknown"}
-          detail={health.missionControl?.publicUrl || health.missionControl?.mode || "unknown"}
+          detail={formatMissionControlDetail(health.missionControl)}
         />
         <HealthRow label="Gateway" status={health.gateway.status} detail={formatLatency(health.gateway.latency)} />
         <HealthRow label="GHL" status={health.ghl.status} detail={formatLatency(health.ghl.latency)} />
@@ -125,4 +126,10 @@ function HealthRow({ label, status, detail }: { label: string; status: string; d
 
 function formatLatency(latency: number) {
   return latency ? `${latency} ms` : "No response";
+}
+
+function formatMissionControlDetail(missionControl?: SystemHealth["missionControl"]) {
+  if (!missionControl) return "unknown";
+  const parts = [missionControl.publicUrl, missionControl.storage].filter(Boolean);
+  return parts.length ? parts.join(" · ") : missionControl.mode || "unknown";
 }

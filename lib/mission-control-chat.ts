@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 const execFileAsync = promisify(execFile);
 
@@ -57,7 +58,7 @@ function cloneSeed() {
   return JSON.parse(JSON.stringify(seedChannels)) as Record<AgentId, ChannelRecord>;
 }
 
-export async function ensureChatStore() {
+async function ensureLocalChatStore() {
   await mkdir(DATA_DIR, { recursive: true });
   try {
     await readFile(CHAT_STORE_PATH, "utf8");
@@ -66,15 +67,108 @@ export async function ensureChatStore() {
   }
 }
 
-export async function loadChatStore() {
-  await ensureChatStore();
+async function loadLocalChatStore() {
+  await ensureLocalChatStore();
   const raw = await readFile(CHAT_STORE_PATH, "utf8");
   return JSON.parse(raw) as Record<AgentId, ChannelRecord>;
 }
 
-export async function saveChatStore(store: Record<AgentId, ChannelRecord>) {
-  await ensureChatStore();
+async function saveLocalChatStore(store: Record<AgentId, ChannelRecord>) {
+  await ensureLocalChatStore();
   await writeFile(CHAT_STORE_PATH, JSON.stringify(store, null, 2));
+}
+
+async function ensureSupabaseSeed() {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) return false;
+
+  const seedRows = Object.entries(seedChannels).map(([agentId, channel]) => ({
+    agent_id: agentId,
+    summary: channel.summary,
+  }));
+
+  const { error: channelError } = await supabase
+    .from("mission_control_channels")
+    .upsert(seedRows, { onConflict: "agent_id", ignoreDuplicates: true });
+
+  if (channelError) {
+    console.error("[mission-control-chat] Supabase channel seed failed:", channelError.message);
+    return false;
+  }
+
+  const messageRows = Object.entries(seedChannels).flatMap(([agentId, channel]) =>
+    channel.messages.map((message) => ({
+      id: message.id,
+      agent_id: agentId,
+      author: message.author,
+      text: message.text,
+      ts: message.ts,
+      status: message.status || null,
+      meta: message.meta || null,
+    }))
+  );
+
+  const { error: messageError } = await supabase
+    .from("mission_control_messages")
+    .upsert(messageRows, { onConflict: "id", ignoreDuplicates: true });
+
+  if (messageError) {
+    console.error("[mission-control-chat] Supabase message seed failed:", messageError.message);
+    return false;
+  }
+
+  return true;
+}
+
+async function getSupabaseChannel(agent: AgentId): Promise<ChannelRecord | null> {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) return null;
+
+  await ensureSupabaseSeed();
+
+  const [{ data: channelRow, error: channelError }, { data: messageRows, error: messageError }] = await Promise.all([
+    supabase.from("mission_control_channels").select("summary").eq("agent_id", agent).maybeSingle(),
+    supabase
+      .from("mission_control_messages")
+      .select("id,author,text,ts,status,meta")
+      .eq("agent_id", agent)
+      .order("ts", { ascending: true }),
+  ]);
+
+  if (channelError || messageError) {
+    console.error("[mission-control-chat] Supabase read failed:", channelError?.message || messageError?.message);
+    return null;
+  }
+
+  return {
+    summary: channelRow?.summary || seedChannels[agent].summary,
+    messages: (messageRows || []) as ChatMessage[],
+  };
+}
+
+async function appendManySupabase(agent: AgentId, messages: ChatMessage[]) {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) return null;
+
+  await ensureSupabaseSeed();
+
+  const rows = messages.map((message) => ({
+    id: message.id,
+    agent_id: agent,
+    author: message.author,
+    text: message.text,
+    ts: message.ts,
+    status: message.status || null,
+    meta: message.meta || null,
+  }));
+
+  const { error } = await supabase.from("mission_control_messages").insert(rows);
+  if (error) {
+    console.error("[mission-control-chat] Supabase append failed:", error.message);
+    return null;
+  }
+
+  return getSupabaseChannel(agent);
 }
 
 export function normalizeAgentId(value: string | null | undefined): AgentId {
@@ -83,21 +177,28 @@ export function normalizeAgentId(value: string | null | undefined): AgentId {
 }
 
 export async function appendMessage(agent: AgentId, message: ChatMessage) {
-  const store = await loadChatStore();
-  store[agent].messages.push(message);
-  await saveChatStore(store);
-  return store[agent];
+  return appendMany(agent, [message]);
 }
 
 export async function appendMany(agent: AgentId, messages: ChatMessage[]) {
-  const store = await loadChatStore();
+  if (isSupabaseConfigured()) {
+    const remote = await appendManySupabase(agent, messages);
+    if (remote) return remote;
+  }
+
+  const store = await loadLocalChatStore();
   store[agent].messages.push(...messages);
-  await saveChatStore(store);
+  await saveLocalChatStore(store);
   return store[agent];
 }
 
 export async function getChannel(agent: AgentId) {
-  const store = await loadChatStore();
+  if (isSupabaseConfigured()) {
+    const remote = await getSupabaseChannel(agent);
+    if (remote) return remote;
+  }
+
+  const store = await loadLocalChatStore();
   return store[agent] || store.main;
 }
 

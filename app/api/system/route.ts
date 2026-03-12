@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMissionControlMode, getMissionControlPublicUrl } from "@/lib/mission-control-config";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 async function timedFetch(url: string, timeoutMs: number, init?: RequestInit) {
   const start = Date.now();
@@ -42,6 +43,7 @@ export async function GET() {
         app: "online",
         mode: getMissionControlMode(),
         publicUrl: getMissionControlPublicUrl(),
+        storage: isSupabaseConfigured() ? "supabase-configured" : "local-fallback",
         uptimeSeconds: Math.round(process.uptime()),
       },
       timestamp: new Date().toISOString(),

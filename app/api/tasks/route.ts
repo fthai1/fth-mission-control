@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getTasksPayload } from "@/lib/tasks-store";
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), "app/api/tasks.json");
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(fileContent);
+    const data = await getTasksPayload();
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({ error: "Failed to load tasks" }, { status: 500 });

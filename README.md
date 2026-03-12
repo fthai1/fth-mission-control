@@ -33,16 +33,39 @@ Create `.env.local` from `.env.example`.
 MISSION_CONTROL_PUBLIC_URL=http://localhost:3000
 MISSION_CONTROL_RUNTIME_MODE=development
 MISSION_CONTROL_ALLOWED_DEV_ORIGINS=mc.fasttrackbuys.com,my-current-tunnel.ngrok-free.dev
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 ```
 
 ### Notes
 - `MISSION_CONTROL_ALLOWED_DEV_ORIGINS` is comma-separated.
 - You can paste hostnames with or without `https://`.
-- This reduces remote-dev friction when the tunnel or domain changes.
+- Supabase is now the preferred hosted persistence layer.
+- The app currently uses **Supabase when configured** and **falls back to local JSON** if the env or tables are not ready yet.
 
 ## Health surfaces
 - `GET /api/system` → gateway / GHL / webhook / Mission Control runtime summary
 - `GET /api/runtime` → permanent-agent runtime snapshot
+
+`/api/system` now also reports whether Mission Control is running on `supabase-configured` storage or `local-fallback` mode.
+
+## Supabase setup
+1. Create the project in Supabase
+2. Add Vercel env vars:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+3. In Supabase SQL editor, run:
+   - `supabase/schema.sql`
+4. Redeploy on Vercel
+
+### Current Supabase-backed surfaces
+- Agent inbox channel metadata + message transcript persistence
+- Task board task feed
+
+### Current fallback behavior
+If Supabase env vars are missing or the tables are not ready, Mission Control keeps serving from local JSON/file storage instead of failing hard.
 
 ## Current deployment direction
 - Hosting: **Vercel**
@@ -50,6 +73,7 @@ MISSION_CONTROL_ALLOWED_DEV_ORIGINS=mc.fasttrackbuys.com,my-current-tunnel.ngrok
 - Primary domain target: **mc.fasttrackbuys.com**
 
 ## Next phase focus
-1. Replace local JSON persistence with Supabase-backed state
-2. Move from tunnel-dependent remote access to first-class hosted deployment
-3. Add durable auth/session handling for operator access
+1. Replace remaining local JSON / file persistence with Supabase-backed state
+2. Add write/update flows for tasks instead of read-only feed fallback
+3. Move from dev-session dependence toward more persistent runtime startup
+4. Add durable auth/session handling for operator access
