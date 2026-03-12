@@ -7,28 +7,48 @@ const PUBLIC_PATH_PREFIXES = ["/login", "/auth/callback", "/_next", "/favicon.ic
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+  try {
+    if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+      const sessionResult = updateSession(request);
+      if (sessionResult instanceof NextResponse) return sessionResult;
+      return sessionResult.response;
+    }
+
     const sessionResult = updateSession(request);
-    if (sessionResult instanceof NextResponse) return sessionResult;
-    return sessionResult.response;
-  }
+    if (sessionResult instanceof NextResponse) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  const sessionResult = updateSession(request);
-  if (sessionResult instanceof NextResponse) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+    const { supabase, response } = sessionResult;
+    const { data, error } = await supabase.auth.getUser();
 
-  const { supabase, response } = sessionResult;
-  const { data } = await supabase.auth.getUser();
-  const email = data.user?.email || null;
+    if (error) {
+      console.error("[mission-control-auth] middleware getUser failed:", error.message);
+      const url = new URL("/login", request.url);
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
 
-  if (!email || !isAllowedEmail(email)) {
+    const email = data.user?.email || null;
+
+    if (!email || !isAllowedEmail(email)) {
+      const url = new URL("/login", request.url);
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+
+    return response;
+  } catch (error) {
+    console.error("[mission-control-auth] middleware failure:", error);
+
+    if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+      return NextResponse.next({ request });
+    }
+
     const url = new URL("/login", request.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
-
-  return response;
 }
 
 export const config = {
