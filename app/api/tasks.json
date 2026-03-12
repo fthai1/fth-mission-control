@@ -1,0 +1,85 @@
+{
+  "tasks": [
+    {
+      "id": 101,
+      "title": "Block C — finalize weeks 2–4 motivation testing",
+      "tag": "Data Agent",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "in-progress",
+      "date": "2026-03-11",
+      "notes": "Operational closeout first. Yesterday's work happened, but written closeout and remaining items were not captured."
+    },
+    {
+      "id": 102,
+      "title": "Repair lis pendens runner reliability",
+      "tag": "Scraper",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "in-progress",
+      "date": "2026-03-11",
+      "notes": "Add 3x Clerk API retries before browser fallback; fix browser fallback selectors/auth flow; validate with manual rerun."
+    },
+    {
+      "id": 103,
+      "title": "Mission Control MVP revamp",
+      "tag": "Mission Control",
+      "priority": "high",
+      "assignee": "🏎️",
+      "status": "in-progress",
+      "date": "2026-03-11",
+      "notes": "Minimal operator dashboard first: Now, tasks, system state, blockers, sessions/sub-agent visibility."
+    },
+    {
+      "id": 104,
+      "title": "Add sub-agent/session visibility to Mission Control",
+      "tag": "Mission Control",
+      "priority": "high",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-11",
+      "notes": "Show whether sub-agents are in use, what they are doing, and stale session status."
+    },
+    {
+      "id": 105,
+      "title": "Write Block C closeout into Mission Control + root docs",
+      "tag": "Mission Control",
+      "priority": "high",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-11",
+      "notes": "Prevent repeat continuity failures by writing the exact remaining work and final state back to system of record."
+    },
+    {
+      "id": 106,
+      "title": "Keep external / legal / financial / irreversible changes gated",
+      "tag": "Operations",
+      "priority": "medium",
+      "assignee": "🏎️",
+      "status": "review",
+      "date": "2026-03-11",
+      "notes": "Default-to-execute rule is active for internal work."
+    },
+    {
+      "id": 107,
+      "title": "Execution-operator operating rule rolled into root docs",
+      "tag": "Operations",
+      "priority": "medium",
+      "assignee": "🏎️",
+      "status": "done",
+      "date": "2026-03-11",
+      "notes": "AGENTS.md, USER.md, MEMORY.md, MissionControl.md, and active-tasks.md updated."
+    },
+    {
+      "id": 108,
+      "title": "Diagnose failed 6AM lis pendens run",
+      "tag": "Scraper",
+      "priority": "high",
+      "assignee": "🏎️",
+      "status": "done",
+      "date": "2026-03-11",
+      "notes": "Root cause found: Clerk API read timeout plus browser fallback selector/login failures."
+    }
+  ],
+  "lastUpdated": "2026-03-11T14:55:00Z"
+}
