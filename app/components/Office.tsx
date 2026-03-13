@@ -51,6 +51,15 @@ const AGENTS: Agent[] = [
     position: { row: 1, col: 3 },
   },
   {
+    id: "marketing-agent",
+    name: "Marketing Agent",
+    emoji: "📣",
+    role: "Marketing Department",
+    status: "working",
+    task: "Building brand system, website optimization lane, campaign ops, property marketing sheets, and social media operating system",
+    position: { row: 2, col: 2 },
+  },
+  {
     id: "task-force-lanes",
     name: "Task-Force Lanes",
     emoji: "🧩",

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export type RuntimeAgentId = "main" | "business-manager" | "data-agent" | "ghl-agent";
+export type RuntimeAgentId = "main" | "business-manager" | "data-agent" | "ghl-agent" | "marketing-agent";
 
 export type RuntimeAgentSummary = {
   id: RuntimeAgentId;
@@ -47,6 +47,13 @@ const AGENTS: Omit<RuntimeAgentSummary, "status" | "note" | "lastUpdatedAt" | "a
     emoji: "⚙️",
     role: "CRM ops / Pipeline monitoring / Workflow QA",
     workspace: "~/.openclaw/workspace-ghl-agent",
+  },
+  {
+    id: "marketing-agent",
+    name: "Marketing Agent",
+    emoji: "📣",
+    role: "Brand / Web / Campaigns / Property marketing / Social media",
+    workspace: "~/.openclaw/workspace-marketing-agent",
   },
 ];
 

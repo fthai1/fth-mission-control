@@ -6,7 +6,7 @@ import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 const execFileAsync = promisify(execFile);
 
-export type AgentId = "main" | "business-manager" | "data-agent" | "ghl-agent";
+export type AgentId = "main" | "business-manager" | "data-agent" | "ghl-agent" | "marketing-agent";
 
 export type ChatMessage = {
   id: string;
@@ -50,6 +50,12 @@ const seedChannels: Record<AgentId, ChannelRecord> = {
     summary: "CRM lane for pipeline monitoring, workflow QA, and recurring reports.",
     messages: [
       { id: "ga1", author: "system", text: "GHL Agent workspace and root-doc scaffold created.", ts: "2026-03-11T19:00:00Z" },
+    ],
+  },
+  "marketing-agent": {
+    summary: "Standalone marketing department owner for branding, website optimization, campaign buildouts, property marketing sheets, and social media.",
+    messages: [
+      { id: "ma1", author: "system", text: "Marketing Agent workspace and first-pass operating artifacts created.", ts: "2026-03-13T18:00:00Z" },
     ],
   },
 };
@@ -172,7 +178,7 @@ async function appendManySupabase(agent: AgentId, messages: ChatMessage[]) {
 }
 
 export function normalizeAgentId(value: string | null | undefined): AgentId {
-  if (value === "business-manager" || value === "data-agent" || value === "ghl-agent") return value;
+  if (value === "business-manager" || value === "data-agent" || value === "ghl-agent" || value === "marketing-agent") return value;
   return "main";
 }
 

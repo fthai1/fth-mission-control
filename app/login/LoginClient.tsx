@@ -79,6 +79,9 @@ export default function LoginClient() {
 function formatLoginMessage(error: string | null) {
   if (error === "not_allowed") return "That email is not on the approved operator allowlist.";
   if (error === "missing_code") return "Login link was incomplete. Request a fresh magic link.";
+  if (error === "pkce_verifier_missing") return "This magic-link session expired or opened without its original login state. Request a fresh link and open it in the same browser/profile.";
+  if (error === "over_email_send_rate_limit") return "Email rate limit exceeded. Wait a few minutes before requesting another magic link.";
+  if (error === "auth_not_configured") return "Mission Control auth is not configured correctly.";
   if (error) return `Login error: ${error}`;
   return "Approved users only. Anonymous access is blocked.";
 }

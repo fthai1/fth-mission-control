@@ -57,6 +57,18 @@ const AGENTS = [
     tier: "agent",
   },
   {
+    id: "marketing-agent",
+    name: "Marketing Agent",
+    role: "Brand / Website / Campaigns / Property marketing / Social media",
+    model: "OpenAI Codex GPT-5.4",
+    workspace: "~/.openclaw/workspace-marketing-agent",
+    status: "live",
+    color: "#ec4899",
+    emoji: "📣",
+    capabilities: ["Brand system", "Website optimization", "Campaign buildouts", "Property marketing sheets", "Social media ops"],
+    tier: "agent",
+  },
+  {
     id: "future-agents",
     name: "Future Agents",
     role: "Extensible architecture for new departments",
