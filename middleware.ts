@@ -1,54 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isAllowedEmail } from "@/lib/auth";
-import { updateSession } from "@/lib/supabase-middleware";
+import { MISSION_CONTROL_PASSCODE_COOKIE, getMissionControlPasscode } from "@/lib/mission-control-passcode";
 
-const PUBLIC_PATH_PREFIXES = ["/login", "/auth/callback", "/_next", "/favicon.ico"];
+const PUBLIC_PATH_PREFIXES = ["/login", "/auth/logout", "/api/passcode-login", "/_next", "/favicon.ico"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  try {
-    if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
-      const sessionResult = updateSession(request);
-      if (sessionResult instanceof NextResponse) return sessionResult;
-      return sessionResult.response;
-    }
+  if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+    return NextResponse.next({ request });
+  }
 
-    const sessionResult = updateSession(request);
-    if (sessionResult instanceof NextResponse) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  const configuredPasscode = getMissionControlPasscode();
+  if (!configuredPasscode) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("error", "passcode_not_configured");
+    return NextResponse.redirect(url);
+  }
 
-    const { supabase, response } = sessionResult;
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error) {
-      console.error("[mission-control-auth] middleware getUser failed:", error.message);
-      const url = new URL("/login", request.url);
-      url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
-    }
-
-    const email = data.user?.email || null;
-
-    if (!email || !isAllowedEmail(email)) {
-      const url = new URL("/login", request.url);
-      url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
-    }
-
-    return response;
-  } catch (error) {
-    console.error("[mission-control-auth] middleware failure:", error);
-
-    if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
-      return NextResponse.next({ request });
-    }
-
+  const hasAccess = request.cookies.get(MISSION_CONTROL_PASSCODE_COOKIE)?.value === "1";
+  if (!hasAccess) {
     const url = new URL("/login", request.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
+
+  return NextResponse.next({ request });
 }
 
 export const config = {
