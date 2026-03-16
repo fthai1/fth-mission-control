@@ -1,85 +1,95 @@
 {
   "tasks": [
     {
-      "id": 101,
-      "title": "Block C — finalize weeks 2–4 motivation testing",
-      "tag": "Data Agent",
-      "priority": "critical",
-      "assignee": "🏎️",
-      "status": "in-progress",
-      "date": "2026-03-11",
-      "notes": "Operational closeout first. Yesterday's work happened, but written closeout and remaining items were not captured."
-    },
-    {
-      "id": 102,
-      "title": "Repair lis pendens runner reliability",
-      "tag": "Scraper",
-      "priority": "critical",
-      "assignee": "🏎️",
-      "status": "in-progress",
-      "date": "2026-03-11",
-      "notes": "Add 3x Clerk API retries before browser fallback; fix browser fallback selectors/auth flow; validate with manual rerun."
-    },
-    {
-      "id": 103,
-      "title": "Mission Control MVP revamp",
+      "id": 201,
+      "title": "Restore Mission Control public link for tomorrow's investor meeting",
       "tag": "Mission Control",
-      "priority": "high",
+      "priority": "critical",
       "assignee": "🏎️",
       "status": "in-progress",
-      "date": "2026-03-11",
-      "notes": "Minimal operator dashboard first: Now, tasks, system state, blockers, sessions/sub-agent visibility."
+      "date": "2026-03-16",
+      "notes": "Primary blocker: public ngrok access must load the real app reliably. Confirm localhost:3000, tunnel health, login flow, and fallback access path."
     },
     {
-      "id": 104,
-      "title": "Add sub-agent/session visibility to Mission Control",
+      "id": 202,
+      "title": "Stabilize Mission Control local runtime on port 3000",
+      "tag": "Infrastructure",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "in-progress",
+      "date": "2026-03-16",
+      "notes": "Keep the Next.js app continuously serving on localhost:3000 and document the clean restart path so tomorrow's demo does not depend on session luck."
+    },
+    {
+      "id": 203,
+      "title": "Clean Task Board for executive review",
+      "tag": "Mission Control",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-16",
+      "notes": "Replace stale sprint residue with the real company priorities for this week: investor demo readiness, runtime stability, data reliability, CRM ops, and departmental ownership."
+    },
+    {
+      "id": 204,
+      "title": "Tighten the Now screen into an executive dashboard",
+      "tag": "Mission Control",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-16",
+      "notes": "Now must instantly show current priorities, recent wins, live runtime status, and blockers so it can open the investor meeting cleanly."
+    },
+    {
+      "id": 205,
+      "title": "Tighten Office runtime view for live operating visibility",
       "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-11",
-      "notes": "Show whether sub-agents are in use, what they are doing, and stale session status."
+      "date": "2026-03-16",
+      "notes": "Show each permanent lane with clear status, owned function, current task, and blocker: main, business-manager, data-agent, ghl-agent, and marketing if useful."
     },
     {
-      "id": 105,
-      "title": "Write Block C closeout into Mission Control + root docs",
+      "id": 206,
+      "title": "Tighten Team view to show the AI department architecture",
       "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-11",
-      "notes": "Prevent repeat continuity failures by writing the exact remaining work and final state back to system of record."
+      "date": "2026-03-16",
+      "notes": "Team should support the story that Fast Track Homes is building department-level AI ownership, not just disconnected automations."
     },
     {
-      "id": 106,
-      "title": "Keep external / legal / financial / irreversible changes gated",
-      "tag": "Operations",
-      "priority": "medium",
-      "assignee": "🏎️",
-      "status": "review",
-      "date": "2026-03-11",
-      "notes": "Default-to-execute rule is active for internal work."
-    },
-    {
-      "id": 107,
-      "title": "Execution-operator operating rule rolled into root docs",
-      "tag": "Operations",
-      "priority": "medium",
-      "assignee": "🏎️",
-      "status": "done",
-      "date": "2026-03-11",
-      "notes": "AGENTS.md, USER.md, MEMORY.md, MissionControl.md, and active-tasks.md updated."
-    },
-    {
-      "id": 108,
-      "title": "Diagnose failed 6AM lis pendens run",
-      "tag": "Scraper",
+      "id": 207,
+      "title": "Build a demo-safe Mission Control navigation path",
+      "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
-      "status": "done",
-      "date": "2026-03-11",
-      "notes": "Root cause found: Clerk API read timeout plus browser fallback selector/login failures."
+      "status": "backlog",
+      "date": "2026-03-16",
+      "notes": "Tomorrow's reliable flow: Now → Team → Office → Task Board → Agent Inbox. Avoid dead or weak surfaces in the live presentation path."
+    },
+    {
+      "id": 208,
+      "title": "Prepare fallback access plan if public tunnel fails",
+      "tag": "Infrastructure",
+      "priority": "high",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-16",
+      "notes": "Have backup access instructions ready: restart path, localhost route, tunnel reissue steps, and alternate demo route if the public link degrades."
+    },
+    {
+      "id": 209,
+      "title": "Mission Control investor-demo sprint complete",
+      "tag": "Mission Control",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-16",
+      "notes": "Definition of done before tomorrow 10 AM: public link working, localhost working, Now cleaned, Task Board truthful, Office/Team presentable, and demo path tested."
     }
   ],
-  "lastUpdated": "2026-03-11T14:55:00Z"
+  "lastUpdated": "2026-03-16T13:50:00Z"
 }
