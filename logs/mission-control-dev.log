@@ -1,0 +1,19 @@
+
+> fth-mission-control@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.1.10.103:3000
+- Environments: .env.local
+
+✓ Starting...
+[Error: Failed to open database
+
+Caused by:
+    0: Loading persistence directory failed
+    1: Unable to open meta file 00000029.meta
+    2: Resource deadlock avoided (os error 11)] {
+  code: 'GenericFailure'
+}
+[?25h

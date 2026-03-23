@@ -12,6 +12,7 @@ import Memory from "./components/Memory";
 import DataStatus from "./components/DataStatus";
 import Office from "./components/Office";
 import SidebarStatus from "./components/SidebarStatus";
+import ActivityFeed from "./components/ActivityFeed";
 
 const NAV = [
   { id: "now",      icon: "⚡", label: "Now" },
@@ -33,6 +34,7 @@ export default function Home() {
   const renderScreen = () => {
     switch (active) {
       case "now":      return <Now />;
+      case "activity": return <ActivityFeed />;
       case "channels": return <Channels />;
       case "tasks":    return <TaskBoard />;
       case "calendar": return <Calendar />;
@@ -114,4 +116,6 @@ export default function Home() {
       </main>
     </div>
   );
+}
+ );
 }

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "seed-001",
+    "ts": "2026-03-20T14:42:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "system",
+    "title": "Agent ecosystem architecture finalized — flat hierarchy live",
+    "detail": "Business Manager retired. Flat architecture confirmed: Enzo → Agent G / Agent I / Agent M / Agent D. All agents report directly to Enzo. Cross-agent routing enabled (tools.sessions.visibility=all + agentToAgent).",
+    "status": "ok"
+  },
+  {
+    "id": "seed-002",
+    "ts": "2026-03-20T14:30:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "system",
+    "title": "Agent D identity confirmed — Disposition & Investor Relations",
+    "detail": "Agent D (agent-4) officially confirmed as Dispo & Investor Relations agent. SOUL.md, IDENTITY.md, MEMORY.md, MissionControl.md, HEARTBEAT.md, and active-tasks.md built. 12 tasks queued.",
+    "status": "ok"
+  },
+  {
+    "id": "seed-003",
+    "ts": "2026-03-20T14:25:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "system",
+    "title": "Agent M foundation built — Marketing knowledge base initialized",
+    "detail": "Agent M (marketing-agent) MEMORY.md and MissionControl.md built. Responsibilities: attribution reporting, SEO, competitor intelligence, campaign management. Blocked on Erik campaign data input.",
+    "status": "warn"
+  },
+  {
+    "id": "seed-004",
+    "ts": "2026-03-20T13:45:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "routing",
+    "title": "DD webhook review dispatched to Agent G",
+    "detail": "Routed task to Agent G: review GHL webhook trigger for DD automation. Verify: existing webhooks, new opportunity workflow, custom fields. Report to #ai-collab.",
+    "status": "running"
+  },
+  {
+    "id": "seed-005",
+    "ts": "2026-03-20T13:38:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "system",
+    "title": "Session cleanup — 27 → 4 active sessions",
+    "detail": "Archived ghost sessions: 6 business-manager + 5 data-agent transcripts preserved in ~/.openclaw/agents/main/archived-sessions/. UI now shows: Enzo (webchat), #ai-collab, #townhall, iMessage.",
+    "status": "ok"
+  },
+  {
+    "id": "seed-006",
+    "ts": "2026-03-20T13:24:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "system",
+    "title": "openclaw.json cleaned — agent-4 + marketing-agent registered",
+    "detail": "Removed: business-manager ID. Added: agent-4 (workspace-business-manager), marketing-agent. Final roster: main (Enzo), ghl-agent (Agent G), data-agent (Agent I), marketing-agent (Agent M), agent-4 (Agent D).",
+    "status": "ok"
+  },
+  {
+    "id": "seed-007",
+    "ts": "2026-03-20T12:01:00.000Z",
+    "agent": "Agent G",
+    "agentId": "ghl-agent",
+    "type": "scraper",
+    "title": "Miami-Dade Lis Pendens daily run — 0 new filings",
+    "detail": "Run at 6AM ET. Clerk API connected (69 units remaining). Browser fallback ran — 0 results returned. Likely cause: Friday 6AM, filings typically post mid-morning. FTP batch folder gap remains known blocker.",
+    "status": "warn"
+  },
+  {
+    "id": "seed-008",
+    "ts": "2026-03-20T09:00:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "cron",
+    "title": "Daily LIS cron disabled per Erik",
+    "detail": "Cron ID 9bc8c30c disabled. Weekly scraper cron remains active (Sundays 6AM). MEMORY.md updated — daily LIS/CTI references removed.",
+    "status": "ok"
+  },
+  {
+    "id": "seed-009",
+    "ts": "2026-03-20T03:46:00.000Z",
+    "agent": "Enzo",
+    "agentId": "main",
+    "type": "dd",
+    "title": "DD complete — 15771 NW 17 PL, Miami Gardens",
+    "detail": "ARV: ~$475K | As-Is: ~$400K | MAO: ~$315K | Offer range: $270K–$300K wholesale\nFree & clear — no mortgage. 2 open municipal liens (Sept 2025) — amounts unknown, need doc pull.\nMotivation score: 8/10 — absentee LLC owner, no homestead, code enforcement active.\n1-bath is discount driver — all comps are 2-bath.\nCritical: call City of Miami Gardens (305) 622-8027 + City of NMB (305) 787-6000 for lien amounts before offer.",
+    "status": "ok"
+  },
+  {
+    "id": "seed-010",
+    "ts": "2026-03-19T23:00:00.000Z",
+    "agent": "Agent G",
+    "agentId": "ghl-agent",
+    "type": "scan",
+    "title": "GHL stale scanner — 169 stale records found, 150 escalations",
+    "detail": "Live scan across all pipelines. 222/252 open leads stale >48h. 57 in DD bottleneck. 50 in Due Today neglect. 1 In Escrow revenue risk (Alexander Peña Blanco — stale since Feb 16). Tasks + notes written to GHL for all stale records.",
+    "status": "warn"
+  }
+]

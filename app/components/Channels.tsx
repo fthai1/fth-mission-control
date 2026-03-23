@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 
 type Agent = {
   id: string;
@@ -9,6 +9,9 @@ type Agent = {
   status: string;
   workspace: string;
   note: string;
+  lastUpdatedAt?: string | null;
+  ageMinutes?: number | null;
+  sessionCount?: number;
 };
 
 type Message = {
@@ -16,6 +19,8 @@ type Message = {
   author: string;
   text: string;
   ts: string;
+  status?: "sent" | "running" | "completed" | "error";
+  meta?: Record<string, string | number | boolean | null>;
 };
 
 type ChannelData = {
@@ -44,6 +49,11 @@ const QUICK_PROMPTS: Record<string, string[]> = {
     "Summarize pipeline exceptions needing action.",
     "List the next CRM automation tasks.",
   ],
+  "marketing-agent": [
+    "Summarize the current marketing priorities.",
+    "List what Erik must finish before live marketing execution.",
+    "Draft the next campaign build sequence.",
+  ],
 };
 
 const NEXT_ACTIONS: Record<string, string[]> = {
@@ -67,6 +77,11 @@ const NEXT_ACTIONS: Record<string, string[]> = {
     "Audit workflows and reporting reliability",
     "Tighten CRM operating cadence",
   ],
+  "marketing-agent": [
+    "Own brand and campaign buildout",
+    "Translate enablement into live execution",
+    "Keep launch blockers visible",
+  ],
 };
 
 function statusColor(status: string) {
@@ -75,8 +90,10 @@ function statusColor(status: string) {
       return "#22c55e";
     case "ready":
       return "#3b82f6";
-    case "planned":
+    case "stale":
       return "#f59e0b";
+    case "idle":
+      return "#94a3b8";
     default:
       return "#94a3b8";
   }
@@ -89,7 +106,27 @@ function formatAuthor(author: string) {
   if (author === "business-manager") return "Business Manager";
   if (author === "data-agent") return "Data Agent";
   if (author === "ghl-agent") return "GHL Agent";
+  if (author === "marketing-agent") return "Marketing Agent";
   return author;
+}
+
+function formatStatusLabel(status: string) {
+  if (status === "working") return "Live";
+  if (status === "ready") return "Recent";
+  if (status === "stale") return "Needs attention";
+  if (status === "idle") return "Idle";
+  return status || "Unknown";
+}
+
+function formatRelativeAge(ageMinutes?: number | null) {
+  if (ageMinutes == null) return "No recent runtime signal";
+  if (ageMinutes < 1) return "Updated just now";
+  if (ageMinutes === 1) return "Updated 1 min ago";
+  if (ageMinutes < 60) return `Updated ${ageMinutes} min ago`;
+  const hours = Math.floor(ageMinutes / 60);
+  const mins = ageMinutes % 60;
+  if (mins === 0) return `Updated ${hours}h ago`;
+  return `Updated ${hours}h ${mins}m ago`;
 }
 
 export default function Channels() {
@@ -100,20 +137,55 @@ export default function Channels() {
   const [search, setSearch] = useState("");
   const [localMessages, setLocalMessages] = useState<Record<string, Message[]>>({});
   const [isSending, setIsSending] = useState(false);
+  const [isLoadingChannel, setIsLoadingChannel] = useState(true);
   const [sendError, setSendError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/agents", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => setAgents(data.agents || []))
-      .catch(() => setAgents([]));
+    let cancelled = false;
+
+    const loadAgents = async () => {
+      try {
+        const response = await fetch("/api/agents", { cache: "no-store" });
+        const data = await response.json();
+        if (!cancelled) setAgents(data.agents || []);
+      } catch {
+        if (!cancelled) setAgents([]);
+      }
+    };
+
+    loadAgents();
+    const timer = setInterval(loadAgents, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, []);
 
   useEffect(() => {
-    fetch(`/api/channels?agent=${active}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => setChannel(data || { summary: "", messages: [] }))
-      .catch(() => setChannel({ summary: "", messages: [] }));
+    let cancelled = false;
+
+    const loadChannel = async ({ quiet = false }: { quiet?: boolean } = {}) => {
+      if (!quiet) setIsLoadingChannel(true);
+      try {
+        const response = await fetch(`/api/channels?agent=${active}`, { cache: "no-store" });
+        const data = await response.json();
+        if (!cancelled) {
+          setChannel(data || { summary: "", messages: [] });
+          setLocalMessages((prev) => ({ ...prev, [active]: [] }));
+        }
+      } catch {
+        if (!cancelled) setChannel({ summary: "", messages: [] });
+      } finally {
+        if (!cancelled && !quiet) setIsLoadingChannel(false);
+      }
+    };
+
+    loadChannel();
+    const timer = setInterval(() => loadChannel({ quiet: true }), 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, [active]);
 
   const filteredAgents = useMemo(() => {
@@ -126,11 +198,13 @@ export default function Channels() {
   }, [agents, search]);
 
   const activeAgent = agents.find((a) => a.id === active);
-  const mergedMessages = [...channel.messages, ...(localMessages[active] || [])].sort(
-    (a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime()
-  );
+  const mergedMessages = [...channel.messages, ...(localMessages[active] || [])]
+    .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime())
+    .filter((msg, index, list) => index === list.findIndex((candidate) => candidate.id === msg.id));
   const quickPrompts = QUICK_PROMPTS[active] || QUICK_PROMPTS.main;
   const nextActions = NEXT_ACTIONS[active] || NEXT_ACTIONS.main;
+  const totalLocalDrafts = Object.values(localMessages).reduce((n, list) => n + list.length, 0);
+  const failedMessages = mergedMessages.filter((msg) => msg.status === "error").length;
 
   const sendDraft = async () => {
     const text = draft.trim();
@@ -141,6 +215,7 @@ export default function Channels() {
       author: "operator",
       text,
       ts: new Date().toISOString(),
+      status: "running",
     };
 
     setSendError(null);
@@ -169,9 +244,23 @@ export default function Channels() {
         [active]: [],
       }));
     } catch (error) {
-      setSendError(error instanceof Error ? error.message : "Failed to send message.");
+      const message = error instanceof Error ? error.message : "Failed to send message.";
+      setSendError(message);
+      setLocalMessages((prev) => ({
+        ...prev,
+        [active]: (prev[active] || []).map((msg) =>
+          msg.id === optimisticMessage.id ? { ...msg, status: "error" } : msg
+        ),
+      }));
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const onComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendDraft();
     }
   };
 
@@ -199,7 +288,7 @@ export default function Channels() {
         <div>
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Agent Inbox</h1>
           <p style={{ margin: "6px 0 0", color: "var(--text-muted)", fontSize: 13 }}>
-            Operator-facing communication surface for the permanent-agent backbone.
+            Live operator surface for permanent-agent communication and lane oversight.
           </p>
         </div>
 
@@ -211,7 +300,7 @@ export default function Channels() {
           }}
         >
           <MetricCard label="Permanent lanes" value={String(agents.length || 0)} />
-          <MetricCard label="Local drafts" value={String(Object.values(localMessages).reduce((n, list) => n + list.length, 0))} />
+          <MetricCard label="Pending sends" value={String(totalLocalDrafts)} />
         </div>
 
         <input
@@ -233,7 +322,7 @@ export default function Channels() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10, minHeight: 0, overflow: "auto" }}>
           {filteredAgents.map((agent) => {
             const isActive = active === agent.id;
-            const msgCount = (channel.messages.length && isActive ? channel.messages.length : 0) + (localMessages[agent.id]?.length || 0);
+            const msgCount = (isActive ? channel.messages.length : 0) + (localMessages[agent.id]?.length || 0);
             return (
               <button
                 key={agent.id}
@@ -259,7 +348,7 @@ export default function Channels() {
                         fontWeight: 700,
                       }}
                     >
-                      {agent.status}
+                      {formatStatusLabel(agent.status)}
                     </span>
                     <span
                       style={{
@@ -276,7 +365,7 @@ export default function Channels() {
                   </div>
                 </div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{agent.role}</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>{agent.note}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>{formatRelativeAge(agent.ageMinutes)}</div>
               </button>
             );
           })}
@@ -304,10 +393,27 @@ export default function Channels() {
               <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>{channel.summary}</div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Badge text={activeAgent?.status || "unknown"} color={statusColor(activeAgent?.status || "")} />
-              <Badge text="Permanent agent" color="#8b5cf6" />
+              <Badge text={formatStatusLabel(activeAgent?.status || "unknown")} color={statusColor(activeAgent?.status || "")} />
+              <Badge text={`${activeAgent?.sessionCount || 0} sessions`} color="#8b5cf6" />
               <Badge text={`${mergedMessages.length} timeline items`} color="#64748b" />
             </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: 14,
+              padding: 12,
+              borderRadius: 12,
+              background: "var(--surface-2)",
+              border: `1px solid ${statusColor(activeAgent?.status || "") || "var(--border)"}33`,
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: 10,
+            }}
+          >
+            <MiniStat label="Lane health" value={formatStatusLabel(activeAgent?.status || "unknown")} />
+            <MiniStat label="Last activity" value={formatRelativeAge(activeAgent?.ageMinutes)} />
+            <MiniStat label="Workspace" value={activeAgent?.workspace || "—"} />
           </div>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
@@ -332,27 +438,51 @@ export default function Channels() {
         </div>
 
         <div style={{ flex: 1, overflow: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0))" }}>
-          {mergedMessages.length === 0 ? (
+          {isLoadingChannel ? (
+            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Loading lane transcript...</div>
+          ) : mergedMessages.length === 0 ? (
             <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No activity in this lane yet.</div>
           ) : (
             mergedMessages.map((msg) => {
               const isOperator = msg.author === "operator";
               const isSystem = msg.author === "system";
+              const bubbleBorder = isOperator
+                ? "rgba(59,130,246,0.45)"
+                : msg.status === "error"
+                  ? "rgba(239,68,68,0.45)"
+                  : isSystem
+                    ? "rgba(245,158,11,0.25)"
+                    : "var(--border)";
+              const bubbleBackground = isOperator
+                ? "rgba(59,130,246,0.14)"
+                : msg.status === "error"
+                  ? "rgba(239,68,68,0.10)"
+                  : isSystem
+                    ? "rgba(245,158,11,0.08)"
+                    : "var(--surface-2)";
+
               return (
                 <div
                   key={msg.id}
                   style={{
                     alignSelf: isOperator ? "flex-end" : "stretch",
                     maxWidth: isOperator ? "78%" : "100%",
-                    background: isOperator ? "rgba(59,130,246,0.14)" : isSystem ? "rgba(245,158,11,0.08)" : "var(--surface-2)",
-                    border: `1px solid ${isOperator ? "rgba(59,130,246,0.45)" : isSystem ? "rgba(245,158,11,0.25)" : "var(--border)"}`,
+                    background: bubbleBackground,
+                    border: `1px solid ${bubbleBorder}`,
                     borderRadius: 14,
                     padding: 14,
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 6 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>
-                      {formatAuthor(msg.author)}
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>
+                        {formatAuthor(msg.author)}
+                      </div>
+                      {msg.status && msg.status !== "completed" && (
+                        <span style={{ fontSize: 10, color: msg.status === "error" ? "#fca5a5" : "var(--text-muted)" }}>
+                          {msg.status === "running" ? "Sending…" : msg.status}
+                        </span>
+                      )}
                     </div>
                     <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
                       {new Date(msg.ts).toLocaleString("en-US", {
@@ -373,13 +503,14 @@ export default function Channels() {
         <div style={{ borderTop: "1px solid var(--border)", padding: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              Send live operator messages into the permanent-agent lanes through OpenClaw, with replies persisted into Mission Control.
+              Send live operator messages into permanent-agent lanes. Press <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for a new line.
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{draft.trim().length} chars</div>
           </div>
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={onComposerKeyDown}
             placeholder={`Message ${activeAgent?.name || "agent"}...`}
             style={{
               width: "100%",
@@ -397,7 +528,13 @@ export default function Channels() {
           />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, gap: 12, flexWrap: "wrap" }}>
             <div style={{ fontSize: 11, color: sendError ? "#fca5a5" : "var(--text-muted)" }}>
-              {sendError ? `Send failed: ${sendError}` : isSending ? "Sending through OpenClaw now..." : "Current mode: live OpenClaw send + Mission Control transcript persistence."}
+              {sendError
+                ? `Send failed: ${sendError}`
+                : isSending
+                  ? "Sending through OpenClaw now..."
+                  : failedMessages
+                    ? `${failedMessages} message${failedMessages === 1 ? "" : "s"} need retry or review.`
+                    : "Live OpenClaw send is active. Transcript auto-refreshes every 10 seconds."}
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -450,8 +587,8 @@ export default function Channels() {
           <div style={{ display: "grid", gap: 10 }}>
             <SnapshotRow label="Workspace" value={activeAgent?.workspace || "—"} />
             <SnapshotRow label="Role" value={activeAgent?.role || "—"} />
-            <SnapshotRow label="Status" value={activeAgent?.status || "—"} valueColor={statusColor(activeAgent?.status || "")} />
-            <SnapshotRow label="Note" value={activeAgent?.note || "—"} />
+            <SnapshotRow label="Status" value={formatStatusLabel(activeAgent?.status || "—")} valueColor={statusColor(activeAgent?.status || "")} />
+            <SnapshotRow label="Runtime note" value={activeAgent?.note || "—"} />
           </div>
         </Panel>
 
@@ -463,14 +600,14 @@ export default function Channels() {
           </ul>
         </Panel>
 
-        <Panel title="Upgrade notes">
+        <Panel title="Operator quality bar">
           <div style={{ display: "grid", gap: 8, fontSize: 13, color: "var(--text-muted)" }}>
-            <div>✅ Real permanent-agent inbox layout</div>
-            <div>✅ Searchable lane list + richer header state</div>
-            <div>✅ Usable composer with live OpenClaw send</div>
-            <div>✅ Mission Control transcript persistence per permanent lane</div>
-            <div>⏳ Next backend step: live session status + history sync</div>
-            <div>⏳ Next UX step: inbox threads, unread state, agent activity stream</div>
+            <div>✅ Live send into permanent-agent lanes</div>
+            <div>✅ Persistent transcript per lane</div>
+            <div>✅ Runtime freshness visible at lane level</div>
+            <div>✅ Faster operator send flow with keyboard shortcut</div>
+            <div>⏳ Next backend step: live session-history hydration</div>
+            <div>⏳ Next UX step: unread state, threads, and activity stream</div>
           </div>
         </Panel>
       </aside>
@@ -529,5 +666,14 @@ function Badge({ text, color }: { text: string; color: string }) {
     >
       {text}
     </span>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 10, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.4, wordBreak: "break-word" }}>{value}</div>
+    </div>
   );
 }
