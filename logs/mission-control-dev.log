@@ -316,3 +316,7 @@ Persisting failed: Another write batch or compaction is already active (Only a s
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 ✓ Ready in 326ms
  HEAD /login 200 in 774ms (compile: 704ms, proxy.ts: 29ms, render: 41ms)
+ GET /login?next=%2F 200 in 51ms (compile: 13ms, proxy.ts: 3ms, render: 35ms)
+ GET /login?next=%2F 200 in 48ms (compile: 9ms, proxy.ts: 5ms, render: 34ms)
+ POST /api/passcode-login 307 in 147ms (compile: 135ms, proxy.ts: 6ms, render: 6ms)
+ POST /login?error=invalid_passcode&next=%2F 200 in 18ms (compile: 913µs, proxy.ts: 1183µs, render: 16ms)
