@@ -109,16 +109,16 @@ export default function Now() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Now</h1>
         <p style={{ margin: "6px 0 0", color: "var(--text-muted)", fontSize: 13 }}>
-          Minimal operator view — current lane, system state, blockers, next actions.
+          Trusted operator view — current priorities, runtime health, blockers, and next actions.
         </p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 1fr", gap: 12 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Current Lane</div>
-          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 8 }}>Mission Control runtime visibility</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 8 }}>Mission Control trust rebuild</div>
           <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 8, lineHeight: 1.45 }}>
-            Turn Mission Control into a live oversight surface: real agent session state, stale-lane detection, blockers, and current execution truth.
+            Stabilize runtime, remove stale dashboard theater, and make the main Mission Control surfaces reflect current operational truth instead of old frozen sprint residue.
           </div>
         </div>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, padding: 16 }}>
@@ -168,7 +168,7 @@ export default function Now() {
                 <div style={{ fontSize: 13, fontWeight: 700 }}>{blocker.name}</div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, lineHeight: 1.45 }}>{blocker.issue}</div>
               </div>
-            )) : <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No stale agent blockers detected right now.</div>}
+            )) : <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No stale runtime blockers detected right now.</div>}
           </div>
         </section>
 
@@ -205,9 +205,9 @@ export default function Now() {
         <section style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Operator Notes</div>
           <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "var(--text-muted)" }}>
-            <div>• Mission Control now reads local OpenClaw session truth.</div>
-            <div>• Stale-lane detection is active for oversight.</div>
-            <div>• Next backend step: sync task truth and lane transcripts from the same live source.</div>
+            <div>• Runtime restart path is back under control on localhost:3000.</div>
+            <div>• The current cleanup pass is focused on trust: one task queue, one runtime story, clearer source boundaries.</div>
+            <div>• Stale-lane detection is useful, but it remains heuristic visibility rather than perfect system truth.</div>
             <div>• Latest runtime timestamp: {runtime.timestamp ? new Date(runtime.timestamp).toLocaleString() : "—"}</div>
           </div>
         </section>

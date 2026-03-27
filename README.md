@@ -20,6 +20,7 @@ Default behavior:
 - runs `next dev`
 - binds to `0.0.0.0:3000`
 - writes logs under `./logs/`
+- current auth mode is **Option A: passcode-first local access**
 
 ## Production-style local start
 ```bash
@@ -61,26 +62,26 @@ SUPABASE_SERVICE_ROLE_KEY=
 4. Redeploy on Vercel
 
 ## Private access / auth
-Mission Control is now intended to run behind **Supabase Auth**.
+Mission Control is currently running under **Option A: passcode-first local access**.
+Supabase remains the preferred persistence backbone and the planned future auth direction, but auth migration is intentionally deferred until runtime and trust-critical screens are stable.
 
 ### Required env
 ```env
+MISSION_CONTROL_PASSCODE=
 MISSION_CONTROL_ALLOWED_EMAILS=erik@fasttrackbuys.com
 ```
 
-### Auth flow
+### Current auth flow
 - `/login` is the public entrypoint
-- users sign in via Supabase magic link
+- operator enters the configured Mission Control passcode
 - middleware blocks anonymous access to the app and API routes
-- only emails in `MISSION_CONTROL_ALLOWED_EMAILS` are allowed through
+- a passcode cookie grants temporary local access
 
-### Supabase dashboard setup
-In Supabase Auth settings:
-- enable **Email** provider
-- enable **magic link / OTP email login**
-- add your site URL / redirect URL:
-  - `https://mc.fasttrackbuys.com/auth/callback`
-  - `http://localhost:3000/auth/callback` (for local dev)
+### Planned future auth direction
+After stabilization:
+- migrate login flow to Supabase Auth / magic link
+- keep allowed-email restrictions in place
+- align hosted deployment around Supabase-backed auth once the app is operationally trustworthy
 
 ### Current Supabase-backed surfaces
 - Agent inbox channel metadata + message transcript persistence

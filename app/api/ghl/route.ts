@@ -1,14 +1,5 @@
 import { NextResponse } from "next/server";
-
-const GHL_API_KEY = "pit-7b605592-a9bc-4f2c-a491-47694fd88bb3";
-const GHL_LOCATION_ID = "b80CbQkQdj8vg0uue9Ea";
-const GHL_BASE = "https://services.leadconnectorhq.com";
-const GHL_VERSION = "2021-07-28";
-
-const HEADERS = {
-  "Authorization": `Bearer ${GHL_API_KEY}`,
-  "Version": GHL_VERSION,
-};
+import { getGhlApiKey, getGhlBaseUrl, getGhlLocationId, getGhlVersion } from "@/lib/mission-control-config";
 
 const PIPELINE_NAMES: Record<string, string> = {
   "v7mNIEAZfIi3ddoF9oh7": "🔥 Seller Leads (Hot)",
@@ -69,13 +60,26 @@ const STALE_THRESHOLDS: Record<string, number> = {
 };
 const DEFAULT_STALE = 3;
 
+function getHeaders() {
+  const apiKey = getGhlApiKey();
+  if (!apiKey) return null;
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    Version: getGhlVersion(),
+  };
+}
+
 async function fetchAllOpportunities(): Promise<any[]> {
+  const locationId = getGhlLocationId();
+  const headers = getHeaders();
+  if (!locationId || !headers) throw new Error("GHL not configured");
+
   const all: any[] = [];
   let url: string | null =
-    `${GHL_BASE}/opportunities/search?location_id=${GHL_LOCATION_ID}&limit=100`;
+    `${getGhlBaseUrl()}/opportunities/search?location_id=${locationId}&limit=100`;
 
   while (url) {
-    const response: Response = await fetch(url, { headers: HEADERS });
+    const response: Response = await fetch(url, { headers });
     if (!response.ok) throw new Error(`GHL API error: ${response.status}`);
     const data: any = await response.json();
     all.push(...(data.opportunities || []));
@@ -85,9 +89,13 @@ async function fetchAllOpportunities(): Promise<any[]> {
 }
 
 async function fetchContacts() {
+  const locationId = getGhlLocationId();
+  const headers = getHeaders();
+  if (!locationId || !headers) return 0;
+
   const res = await fetch(
-    `${GHL_BASE}/contacts/?locationId=${GHL_LOCATION_ID}&limit=1`,
-    { headers: HEADERS }
+    `${getGhlBaseUrl()}/contacts/?locationId=${locationId}&limit=1`,
+    { headers }
   );
   if (!res.ok) return 0;
   const data = await res.json();

@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
-import { getMissionControlMode, getMissionControlPublicUrl } from "@/lib/mission-control-config";
+import {
+  getGhlApiKey,
+  getGhlBaseUrl,
+  getGhlLocationId,
+  getGhlVersion,
+  getMissionControlAuthMode,
+  getMissionControlMode,
+  getMissionControlPublicUrl,
+} from "@/lib/mission-control-config";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 async function timedFetch(url: string, timeoutMs: number, init?: RequestInit) {
@@ -18,19 +26,29 @@ async function timedFetch(url: string, timeoutMs: number, init?: RequestInit) {
   }
 }
 
+async function getGhlHealth() {
+  const apiKey = getGhlApiKey();
+  const locationId = getGhlLocationId();
+  if (!apiKey || !locationId) {
+    return { status: "unconfigured", latency: 0 };
+  }
+
+  return timedFetch(
+    `${getGhlBaseUrl()}/opportunities/search?location_id=${locationId}&limit=1`,
+    6000,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Version: getGhlVersion(),
+      },
+    }
+  );
+}
+
 export async function GET() {
   try {
     const [ghl, webhook, gateway] = await Promise.all([
-      timedFetch(
-        "https://services.leadconnectorhq.com/opportunities/search?location_id=b80CbQkQdj8vg0uue9Ea&limit=1",
-        6000,
-        {
-          headers: {
-            Authorization: "Bearer pit-7b605592-a9bc-4f2c-a491-47694fd88bb3",
-            Version: "2021-07-28",
-          },
-        }
-      ),
+      getGhlHealth(),
       timedFetch("http://localhost:8765/health", 3000),
       timedFetch("http://127.0.0.1:18789/health", 2500),
     ]);
@@ -44,7 +62,7 @@ export async function GET() {
         mode: getMissionControlMode(),
         publicUrl: getMissionControlPublicUrl(),
         storage: isSupabaseConfigured() ? "supabase-configured" : "local-fallback",
-        auth: "supabase-magic-link",
+        auth: getMissionControlAuthMode(),
         uptimeSeconds: Math.round(process.uptime()),
       },
       timestamp: new Date().toISOString(),

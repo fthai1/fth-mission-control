@@ -20,7 +20,7 @@ const AGENTS: Agent[] = [
     emoji: "🏎️",
     role: "Coordinator / Mission Control",
     status: "working",
-    task: "Integrating Team and Office with the real OpenClaw agent backbone",
+    task: "Cleaning Mission Control into a trustworthy visibility layer: runtime stability, task truth, and surface alignment.",
     position: { row: 1, col: 1 },
   },
   {
@@ -29,7 +29,7 @@ const AGENTS: Agent[] = [
     emoji: "📊",
     role: "Oversight & Reporting",
     status: "idle",
-    task: "Ready to take summaries, exception review, and cross-agent monitoring",
+    task: "Ready for summary views, exception reporting, and executive visibility once the core surfaces are trustworthy.",
     position: { row: 0, col: 2 },
   },
   {
@@ -38,7 +38,7 @@ const AGENTS: Agent[] = [
     emoji: "🔍",
     role: "Data Reliability",
     status: "idle",
-    task: "Ready for scraper repair, run validation, and source monitoring tasks",
+    task: "Ready for source monitoring, scraper validation, and data-freshness work once the visibility layer is cleaned up.",
     position: { row: 2, col: 1 },
   },
   {
@@ -47,7 +47,7 @@ const AGENTS: Agent[] = [
     emoji: "⚙️",
     role: "CRM Operations",
     status: "idle",
-    task: "Ready for pipeline health, stale lead review, and workflow QA tasks",
+    task: "Strongest current live surface is still GHL Pipeline; preserve it while weaker Mission Control surfaces are tightened.",
     position: { row: 1, col: 3 },
   },
   {
@@ -55,8 +55,8 @@ const AGENTS: Agent[] = [
     name: "Marketing Agent",
     emoji: "📣",
     role: "Marketing Department",
-    status: "working",
-    task: "Building brand system, website optimization lane, campaign ops, property marketing sheets, and social media operating system",
+    status: "planned",
+    task: "Department lane exists architecturally, but should not present live-work theater until it has real current operating data behind it.",
     position: { row: 2, col: 2 },
   },
   {
@@ -65,7 +65,7 @@ const AGENTS: Agent[] = [
     emoji: "🧩",
     role: "Temporary sub-agents / execution lanes",
     status: "planned",
-    task: "Spawn under permanent agents as needed; Office shows runtime, Team shows architecture",
+    task: "Temporary execution lanes should appear from real runtime activity when they exist, not from decorative placeholder status.",
     position: { row: 0, col: 0 },
   },
 ];
@@ -338,7 +338,7 @@ export default function Office() {
           <div>
             <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text)" }}>🏢 Office</h1>
             <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: 13 }}>
-              Runtime view — permanent agents at their desks, temporary lanes/task forces under them.
+              Runtime posture view — permanent lanes, current work stance, and honest readiness without fake live activity.
             </p>
           </div>
 
@@ -352,7 +352,7 @@ export default function Office() {
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, marginBottom: 18 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Runtime Rule</div>
           <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.5 }}>
-            Office shows <strong style={{ color: "var(--text)" }}>live ownership and runtime posture</strong>. Permanent agents sit here as departments; temporary lanes and sub-agents are task-force units that should spawn under them as needed.
+            Office shows <strong style={{ color: "var(--text)" }}>runtime posture and ownership</strong>. Permanent lanes belong here, but they should only look active when current data supports it. Temporary lanes and task-force units should appear from real runtime activity, not decorative placeholders.
           </div>
         </div>
 

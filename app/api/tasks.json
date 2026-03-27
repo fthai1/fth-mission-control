@@ -1,95 +1,85 @@
 {
   "tasks": [
     {
-      "id": 201,
-      "title": "Restore Mission Control public link for tomorrow's investor meeting",
+      "id": 301,
+      "title": "Stabilize Mission Control local runtime and restart path",
+      "tag": "Infrastructure",
+      "priority": "critical",
+      "assignee": "🏎️",
+      "status": "review",
+      "date": "2026-03-27",
+      "notes": "Syntax blocker is fixed, repeat restart path is hardened, and localhost:3000 is serving again. Next polish pass is tighter PID hygiene and cleaner shutdown behavior."
+    },
+    {
+      "id": 302,
+      "title": "Rebuild Task Board into a truthful current operating queue",
       "tag": "Mission Control",
       "priority": "critical",
       "assignee": "🏎️",
       "status": "in-progress",
-      "date": "2026-03-16",
-      "notes": "Primary blocker: public ngrok access must load the real app reliably. Confirm localhost:3000, tunnel health, login flow, and fallback access path."
+      "date": "2026-03-27",
+      "notes": "Remove stale demo-era sprint residue and align the board to current Mission Control stabilization, runtime trust, and visibility work."
     },
     {
-      "id": 202,
-      "title": "Stabilize Mission Control local runtime on port 3000",
-      "tag": "Infrastructure",
+      "id": 303,
+      "title": "Align Now, Task Board, and Office to the same operational story",
+      "tag": "Mission Control",
       "priority": "critical",
       "assignee": "🏎️",
       "status": "in-progress",
-      "date": "2026-03-16",
-      "notes": "Keep the Next.js app continuously serving on localhost:3000 and document the clean restart path so tomorrow's demo does not depend on session luck."
+      "date": "2026-03-27",
+      "notes": "The top surfaces should reflect the same current priorities, live runtime state, blocker language, and source-of-truth boundaries."
     },
     {
-      "id": 203,
-      "title": "Clean Task Board for executive review",
-      "tag": "Mission Control",
-      "priority": "critical",
-      "assignee": "🏎️",
-      "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Replace stale sprint residue with the real company priorities for this week: investor demo readiness, runtime stability, data reliability, CRM ops, and departmental ownership."
-    },
-    {
-      "id": 204,
-      "title": "Tighten the Now screen into an executive dashboard",
-      "tag": "Mission Control",
-      "priority": "critical",
-      "assignee": "🏎️",
-      "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Now must instantly show current priorities, recent wins, live runtime status, and blockers so it can open the investor meeting cleanly."
-    },
-    {
-      "id": 205,
-      "title": "Tighten Office runtime view for live operating visibility",
+      "id": 304,
+      "title": "Clean remaining stale hardcoded status theater from Mission Control surfaces",
       "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Show each permanent lane with clear status, owned function, current task, and blocker: main, business-manager, data-agent, ghl-agent, and marketing if useful."
+      "date": "2026-03-27",
+      "notes": "Audit Now, Office, Team, Projects, Docs, and Memory surfaces for legacy snapshot content that still looks live but is not trustworthy."
     },
     {
-      "id": 206,
-      "title": "Tighten Team view to show the AI department architecture",
+      "id": 305,
+      "title": "Define trusted source boundaries per Mission Control screen",
       "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Team should support the story that Fast Track Homes is building department-level AI ownership, not just disconnected automations."
+      "date": "2026-03-27",
+      "notes": "Each major surface should clearly map to live runtime data, file-backed data, Supabase-native state, or explicit fallback state."
     },
     {
-      "id": 207,
-      "title": "Build a demo-safe Mission Control navigation path",
+      "id": 306,
+      "title": "Harden live runtime visibility for permanent agent lanes",
       "tag": "Mission Control",
       "priority": "high",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Tomorrow's reliable flow: Now → Team → Office → Task Board → Agent Inbox. Avoid dead or weak surfaces in the live presentation path."
+      "date": "2026-03-27",
+      "notes": "Office and Now should show real lane freshness, live/stale state, and useful last-output summaries without pretending to know more than the data source supports."
     },
     {
-      "id": 208,
-      "title": "Prepare fallback access plan if public tunnel fails",
+      "id": 307,
+      "title": "Preserve GHL Pipeline as a strong live surface while tightening weaker screens",
+      "tag": "GHL",
+      "priority": "medium",
+      "assignee": "🏎️",
+      "status": "backlog",
+      "date": "2026-03-27",
+      "notes": "Do not tear down the strongest current surface. Keep the working live pipeline view and improve the weaker visibility layers around it."
+    },
+    {
+      "id": 308,
+      "title": "Document the clean Mission Control startup path for continuity",
       "tag": "Infrastructure",
-      "priority": "high",
+      "priority": "medium",
       "assignee": "🏎️",
       "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Have backup access instructions ready: restart path, localhost route, tunnel reissue steps, and alternate demo route if the public link degrades."
-    },
-    {
-      "id": 209,
-      "title": "Mission Control investor-demo sprint complete",
-      "tag": "Mission Control",
-      "priority": "critical",
-      "assignee": "🏎️",
-      "status": "backlog",
-      "date": "2026-03-16",
-      "notes": "Definition of done before tomorrow 10 AM: public link working, localhost working, Now cleaned, Task Board truthful, Office/Team presentable, and demo path tested."
+      "date": "2026-03-27",
+      "notes": "Make the local bring-up path obvious so runtime recovery does not depend on chat history or memory."
     }
   ],
-  "lastUpdated": "2026-03-16T13:50:00Z"
+  "lastUpdated": "2026-03-27T14:40:00Z"
 }
